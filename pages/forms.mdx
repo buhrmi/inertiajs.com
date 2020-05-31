@@ -175,7 +175,7 @@ Unlike a classic ajax submitted form, with Inertia you don't handle the post sub
 
 Handling server-side validation errors (`422` responses) in Inertia works a little different than a classic ajax-driven form, where you catch the validation errors in the response and then update the form state. The trick is to handle the validation errors more like a server-side framework.
 
-First, you submit your form using Inertia. If there are validation errors, you redirect server-side back to your form page, including the errors in the session. Your server-side framework likely already does this automatically.
+First, you submit your form using Inertia. If there are validation errors, you redirect server-side back to your form page, including the errors in the session. Laravel already does this automatically. In Rails, you can use the `flash` to temporary store the errors.
 
 From there you need to send those error messages to your form page component. You can do this in your controller, but it's better to simply do this automatically for all your page components. You can use the Inertia [share](/shared-data) functionality to accomplish this.
 
@@ -200,7 +200,20 @@ From there you need to send those error messages to your form page component. Yo
       name: 'Rails',
       language: 'ruby',
       code: dedent`
-        # todo
+        inertia_share do
+          { errors: flash[:errors] }
+        end
+        
+        def create
+          user = User.new(user_params)
+          if user.save
+            flash[:success] = "User created successfully"
+            redirect_to user
+          else
+            flash[:errors] = user.errors
+            redirect_back
+          end
+        end
       `,
     },
   ]}
